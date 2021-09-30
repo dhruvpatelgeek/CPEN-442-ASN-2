@@ -3,9 +3,8 @@ package main
 import (
 	"fmt"
 	"hash/crc32"
-	"math/rand"
 	"log"
-	"os"
+	"math/rand"
 	"strconv"
 	"sync"
 	"time"
@@ -28,31 +27,34 @@ func main() {
 
 func crack(num int){
 	fmt.Println("worker # ",num," online ")
-	data := "102E91D22C3795494B378096783BE2A3"
-	crc32_val:=crc32.ChecksumIEEE([]byte(data))
+	//data := "102E91D22C3795494B378096783BE2A3"
+	//crc32_val:=crc32.ChecksumIEEE([]byte(data))
+	var cache=make(map[string]string)
 
 	var token=make([]byte,80000)
-	rand.Read(token)
-	token_crc:=crc32.ChecksumIEEE([]byte(token))
+
 	var itr=0
-	for token_crc!=crc32_val{
-		itr+=1;
-		if(itr%100000==0){
-			fmt.Println("finished #",itr)
-		}
+	var a,b []byte
+	for {
 		rand.Read(token)
-		token_crc=crc32.ChecksumIEEE([]byte(token))
+		token_crc:=crc32.ChecksumIEEE([]byte(token))
+		itr+=1
+		if itr%1000==0{
+			fmt.Println("#",itr)
+		}
+		if val, ok := cache[strconv.Itoa(int(token_crc))];ok {
+			a=token
+			b=[]byte(val)
+			break;
+		} else {
+			cache[strconv.Itoa(int(token_crc))]= string(token)
+		}
 	}
-	fmt.Println(num,": CRC token is",token_crc," and ",crc32_val)
-	fmt.Println(num,": CRC val is",token[:1000])
-	var file_name = "RAND_CRYPT#"
-	file_name+=strconv.Itoa(num)
-	file_name+=".log"
-	f, err := os.Create(file_name)
-	if err != nil {
-		log.Fatal(err)
-	}
-	_, _ = f.WriteString(string(token))
-	defer f.Close()
+	fmt.Println(num,": CRC token is")
+	fmt.Println(a)
+	fmt.Println("XXXXXXXXXXXXXXXXXXXXXXXXXX")
+	fmt.Println(b)
+
+
 	semap.Unlock()
 }
