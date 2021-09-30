@@ -297,7 +297,7 @@ func hill_worker(cipher_text string,englishDict []string, wrk_num int,starting_s
 	for {
 		itr++;
 		if(itr%100==0){
-			fmt.Println("WORKER #",wrk_num,"COMPLETED ",itr,"CHECKS");
+			//fmt.Println("WORKER #",wrk_num,"COMPLETED ",itr,"CHECKS");
 		}
 		table, table_string := playfair_genrate_matrix(starting_string);
 		diagraph := playfair_transform_string(cipher_text)
@@ -329,9 +329,9 @@ func hill_worker(cipher_text string,englishDict []string, wrk_num int,starting_s
 			starting_string=prev(starting_string);
 		}
 	}
-	fmt.Println("WORKER EXIT",wrk_num,"max_score",prev_best_score);
+	//fmt.Println("WORKER EXIT",wrk_num,"max_score",prev_best_score);
 
-	fmt.Println(prev_best_decrypted_text,"\n -------\n with KEY ",prev_best_string)
+	//fmt.Println(prev_best_decrypted_text,"\n -------\n with KEY ",prev_best_string)
 
 	_, err2 := f.WriteString(prev_best_decrypted_text+"\n -------\n"+"with KEY "+prev_best_string)
 
@@ -344,5 +344,5 @@ func hill_worker(cipher_text string,englishDict []string, wrk_num int,starting_s
 		plain_text=prev_best_string
 	}
 	max_lock.Unlock()
-	fmt.Println("done")
+	//fmt.Println("done")
 }
