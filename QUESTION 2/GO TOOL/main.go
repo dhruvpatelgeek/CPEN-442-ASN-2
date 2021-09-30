@@ -12,9 +12,10 @@ import (
 )
 
 
-// playfair creater from string
-// playfair dycryptr
-// calculate score
+var global_best_score int
+var plain_text string
+var max_lock sync.Mutex
+
 
 func playfair_genrate_matrix(keyword string)(map[string][2]int,[5][5]string){
 	letters := [5][5]string{}
@@ -170,7 +171,7 @@ func playfair_decrypt(table map[string][2]int,table_string [5][5]string,diagraph
 	return ans_string
 }
 
-var NUM_WORKERS=1;
+var NUM_WORKERS=5;
 var wg sync.WaitGroup
 func main() {
 
@@ -204,9 +205,10 @@ func main() {
 	var cipher_text string="GNCNTNIEVUPTOTCHZSWQTQFNMFMDTLEFXUPTSDFUEYTFQNYEMZGYTFYXPXNRZMECFITRWEYXXTNPNSADZETFYFSTZEDR"
 	for i:=0;i<NUM_WORKERS;i++{
 		wg.Add(1)
-		hill_worker(cipher_text,englishDict,1,randString());
+		hill_worker(cipher_text,englishDict,i,randString());
 	}
-	//wg.Wait()
+	wg.Wait()
+	fmt.Println("\n BEST STRING IS [",plain_text,"] with score >>", global_best_score)
 }
 
 func next(key string) string{
@@ -270,11 +272,8 @@ func randString() string{
 	}
 	return ans
 }
-var global_max struct{
-	val int
-	plain_text string
-	lock sync.Mutex
-}
+
+
 
 func hill_worker(cipher_text string,englishDict []string, wrk_num int,starting_string string){
 	var file_name = "RAND_CRYPT#"
@@ -339,6 +338,11 @@ func hill_worker(cipher_text string,englishDict []string, wrk_num int,starting_s
 	if err2 != nil {
 		log.Fatal(err2)
 	}
-
+	max_lock.Lock()
+	if prev_best_score>global_best_score{
+		global_best_score=prev_best_score
+		plain_text=prev_best_string
+	}
+	max_lock.Unlock()
 	fmt.Println("done")
 }
